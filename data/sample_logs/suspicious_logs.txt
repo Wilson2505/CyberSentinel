@@ -1,0 +1,7 @@
+Failed login attempt for user admin from IP 192.168.1.105 - attempt 5 of 5
+Unauthorized access detected on port 22 from external IP 45.33.32.156
+SQL injection attempt detected in web request: SELECT * FROM users WHERE id=1 OR 1=1
+Normal user login successful for user john.doe from IP 10.0.0.5
+System backup completed successfully at 02:00 UTC
+Malware signature detected in file upload: trojan.genericKD.46678
+Port scan detected from IP 203.0.113.42 targeting ports 22,80,443,8080
