@@ -77,7 +77,7 @@ class ThreatClassifier:
                 "risk_level": risk_level,
                 "raw_text": display_text,
                 "model_used": self.model_name,
-                "flagged": confidence >= config.CONFIDENCE_THRESHOLD
+                "flagged": label == "NEGATIVE" and confidence >= config.CONFIDENCE_THRESHOLD
             }
             
         except Exception as e:
@@ -104,10 +104,8 @@ class ThreatClassifier:
             else:
                 return "LOW"
         else:
-            if confidence >= 0.90:
-                return "SAFE"
-            else:
-                return "LOW"
+        # POSITIVE label = not threatening
+            return "SAFE"
     
     def evaluate_model(self, test_cases: list) -> dict:
         """
