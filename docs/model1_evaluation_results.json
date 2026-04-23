@@ -1,0 +1,126 @@
+{
+  "model": "distilbert-base-uncased-finetuned-sst-2-english",
+  "evaluation_date": "2026-04-24T01:36:57.231064",
+  "metrics": {
+    "total_cases": 16,
+    "detection_rate": 1.0,
+    "specificity": 0.0,
+    "overall_accuracy": 0.5
+  },
+  "suspicious_results": [
+    {
+      "category": "Brute Force",
+      "label": "NEGATIVE",
+      "confidence": 0.9998,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Unauthorized Access",
+      "label": "NEGATIVE",
+      "confidence": 0.9963,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "SQL Injection",
+      "label": "NEGATIVE",
+      "confidence": 0.9952,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Malware",
+      "label": "NEGATIVE",
+      "confidence": 0.9981,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Port Scan",
+      "label": "NEGATIVE",
+      "confidence": 0.9849,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Ransomware",
+      "label": "NEGATIVE",
+      "confidence": 0.9948,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Phishing",
+      "label": "NEGATIVE",
+      "confidence": 0.9987,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Data Exfiltration",
+      "label": "NEGATIVE",
+      "confidence": 0.9933,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    }
+  ],
+  "benign_results": [
+    {
+      "category": "Normal Login",
+      "label": "POSITIVE",
+      "confidence": 0.977,
+      "risk_level": "SAFE",
+      "flagged": true
+    },
+    {
+      "category": "Scheduled Task",
+      "label": "POSITIVE",
+      "confidence": 0.9919,
+      "risk_level": "SAFE",
+      "flagged": true
+    },
+    {
+      "category": "Maintenance",
+      "label": "POSITIVE",
+      "confidence": 0.9817,
+      "risk_level": "SAFE",
+      "flagged": true
+    },
+    {
+      "category": "Backup",
+      "label": "NEGATIVE",
+      "confidence": 0.9845,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Health Check",
+      "label": "NEGATIVE",
+      "confidence": 0.9957,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Policy Compliance",
+      "label": "POSITIVE",
+      "confidence": 0.845,
+      "risk_level": "LOW",
+      "flagged": true
+    },
+    {
+      "category": "Security Scan",
+      "label": "NEGATIVE",
+      "confidence": 0.9926,
+      "risk_level": "CRITICAL",
+      "flagged": true
+    },
+    {
+      "category": "Admin Action",
+      "label": "POSITIVE",
+      "confidence": 0.9974,
+      "risk_level": "SAFE",
+      "flagged": true
+    }
+  ]
+}
