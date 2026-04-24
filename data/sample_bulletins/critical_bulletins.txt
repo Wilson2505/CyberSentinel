@@ -1,0 +1,3 @@
+CRITICAL: Zero-day vulnerability actively exploited in the wild. Remote code execution possible without authentication. Patch immediately.
+WARNING: Ransomware campaign targeting financial institutions detected. Multiple organisations already compromised with data exfiltration confirmed.
+ALERT: Backdoor discovered in widely-used open source library. Affects millions of installations worldwide. Immediate remediation required.
