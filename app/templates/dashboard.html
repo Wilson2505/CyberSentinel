@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberSentinel — Threat Intelligence Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Courier New", monospace;
+        background: #0a0e1a;
+        color: #e0e0e0;
+        min-height: 100vh;
+      }
+
+      header {
+        background: #0d1117;
+        border-bottom: 1px solid #1e3a5f;
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      header h1 {
+        color: #00d4ff;
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+      }
+
+      header span {
+        color: #666;
+        font-size: 0.8rem;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        background: #00ff88;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+
+      .card {
+        background: #0d1117;
+        border: 1px solid #1e3a5f;
+        border-radius: 8px;
+        padding: 24px;
+      }
+
+      .card h2 {
+        color: #00d4ff;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+      }
+
+      .card label {
+        display: block;
+        color: #888;
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      textarea {
+        width: 100%;
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-family: "Courier New", monospace;
+        font-size: 0.85rem;
+        padding: 12px;
+        resize: vertical;
+        min-height: 120px;
+        transition: border-color 0.2s;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #00d4ff;
+      }
+
+      textarea::placeholder {
+        color: #444;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .btn-analyse {
+        width: 100%;
+        padding: 14px;
+        background: #00d4ff;
+        color: #0a0e1a;
+        border: none;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 1rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .btn-analyse:hover {
+        background: #00b8d9;
+      }
+      .btn-analyse:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+      }
+
+      .results {
+        display: none;
+      }
+      .results.visible {
+        display: block;
+      }
+
+      .risk-banner {
+        border-radius: 8px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .risk-CRITICAL {
+        background: #3d0000;
+        border: 1px solid #ff0000;
+      }
+      .risk-HIGH {
+        background: #2d1a00;
+        border: 1px solid #ff6600;
+      }
+      .risk-MEDIUM {
+        background: #2d2a00;
+        border: 1px solid #ffcc00;
+      }
+      .risk-LOW {
+        background: #0a2d00;
+        border: 1px solid #00cc44;
+      }
+      .risk-SAFE {
+        background: #002d1a;
+        border: 1px solid #00ff88;
+      }
+      .risk-UNKNOWN {
+        background: #1a1a2e;
+        border: 1px solid #444;
+      }
+
+      .risk-label {
+        font-size: 2rem;
+        font-weight: bold;
+        letter-spacing: 4px;
+      }
+
+      .risk-CRITICAL .risk-label {
+        color: #ff4444;
+      }
+      .risk-HIGH .risk-label {
+        color: #ff8844;
+      }
+      .risk-MEDIUM .risk-label {
+        color: #ffcc44;
+      }
+      .risk-LOW .risk-label {
+        color: #44cc88;
+      }
+      .risk-SAFE .risk-label {
+        color: #00ff88;
+      }
+      .risk-UNKNOWN .risk-label {
+        color: #888;
+      }
+
+      .risk-meta {
+        text-align: right;
+        color: #888;
+        font-size: 0.8rem;
+      }
+
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .model-card {
+        background: #0d1117;
+        border: 1px solid #1e3a5f;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .model-card h3 {
+        color: #00d4ff;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+      }
+
+      .model-card .not-run {
+        color: #444;
+        font-size: 0.8rem;
+        font-style: italic;
+      }
+
+      .field {
+        margin-bottom: 8px;
+      }
+
+      .field .key {
+        color: #666;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .field .value {
+        color: #e0e0e0;
+        font-size: 0.85rem;
+      }
+
+      .recommendations {
+        background: #0d1117;
+        border: 1px solid #1e3a5f;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+
+      .recommendations h3 {
+        color: #00d4ff;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+      }
+
+      .recommendations ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .recommendations li {
+        padding: 8px 0;
+        border-bottom: 1px solid #1a1a2e;
+        font-size: 0.85rem;
+        color: #ccc;
+      }
+
+      .recommendations li:last-child {
+        border-bottom: none;
+      }
+      .recommendations li::before {
+        content: "→ ";
+        color: #00d4ff;
+      }
+
+      .summary-box {
+        background: #0d1117;
+        border: 1px solid #1e3a5f;
+        border-radius: 8px;
+        padding: 20px;
+        font-size: 0.8rem;
+        color: #888;
+        word-break: break-word;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        color: #00d4ff;
+      }
+
+      .loading.visible {
+        display: block;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 3px solid #1e3a5f;
+        border-top-color: #00d4ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 16px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-box {
+        display: none;
+        background: #3d0000;
+        border: 1px solid #ff0000;
+        border-radius: 8px;
+        padding: 20px;
+        color: #ff4444;
+        margin-bottom: 24px;
+      }
+
+      .error-box.visible {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="status-dot"></div>
+      <h1>⚡ CYBERSENTINEL</h1>
+      <span>AI Threat Intelligence Analysis System</span>
+    </header>
+
+    <div class="container">
+      <!-- Input Section -->
+      <div class="grid">
+        <div class="card">
+          <h2>📋 Log Analysis — Model 1</h2>
+          <label>System Logs / Security Reports</label>
+          <textarea
+            id="logText"
+            placeholder="Paste system logs or security report text here...&#10;&#10;Example: Failed login attempt for user admin from IP 192.168.1.105"
+          ></textarea>
+        </div>
+
+        <div class="card">
+          <h2>💻 Code Analysis — Model 2</h2>
+          <label>Suspicious Code Snippet</label>
+          <textarea
+            id="codeSnippet"
+            placeholder="Paste suspicious code here...&#10;&#10;Example: import socket&#10;s = socket.socket()&#10;s.connect(('192.168.1.100', 4444))"
+          ></textarea>
+        </div>
+
+        <div class="card full-width">
+          <h2>📡 Threat Bulletin — Model 3</h2>
+          <label>CVE Description / Security Advisory</label>
+          <textarea
+            id="bulletinText"
+            placeholder="Paste threat intelligence bulletin or CVE description here...&#10;&#10;Example: Critical zero-day vulnerability actively exploited in the wild. Remote code execution possible without authentication."
+            style="min-height: 80px"
+          ></textarea>
+        </div>
+
+        <div class="card full-width">
+          <button class="btn-analyse" id="analyseBtn" onclick="runAnalysis()">
+            ⚡ RUN ANALYSIS
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Running AI analysis pipeline...</p>
+        <p style="font-size: 0.75rem; color: #444; margin-top: 8px">
+          This may take 30-60 seconds
+        </p>
+      </div>
+
+      <!-- Error -->
+      <div class="error-box" id="errorBox"></div>
+
+      <!-- Results -->
+      <div class="results" id="results">
+        <!-- Overall Risk Banner -->
+        <div class="risk-banner" id="riskBanner">
+          <div>
+            <div style="color: #888; font-size: 0.75rem; margin-bottom: 4px">
+              OVERALL RISK LEVEL
+            </div>
+            <div class="risk-label" id="overallRisk">—</div>
+          </div>
+          <div class="risk-meta">
+            <div id="urgencyLevel"></div>
+            <div id="modelsRun"></div>
+            <div id="timestamp"></div>
+          </div>
+        </div>
+
+        <!-- Model Results -->
+        <div class="results-grid">
+          <div class="model-card" id="threatCard">
+            <h3>Model 1 — Threat Classifier</h3>
+            <div id="threatContent" class="not-run">Not run</div>
+          </div>
+          <div class="model-card" id="codeCard">
+            <h3>Model 2 — Code Analyser</h3>
+            <div id="codeContent" class="not-run">Not run</div>
+          </div>
+          <div class="model-card" id="urgencyCard">
+            <h3>Model 3 — Urgency Classifier</h3>
+            <div id="urgencyContent" class="not-run">Not run</div>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations">
+          <h3>🎯 Recommended Actions</h3>
+          <ul id="recommendationsList"></ul>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-box" id="summaryBox"></div>
+      </div>
+    </div>
+
+    <script>
+      async function runAnalysis() {
+        const logText = document.getElementById("logText").value.trim();
+        const codeSnippet = document.getElementById("codeSnippet").value.trim();
+        const bulletinText = document
+          .getElementById("bulletinText")
+          .value.trim();
+
+        if (!logText && !codeSnippet && !bulletinText) {
+          showError("Please provide at least one input to analyse.");
+          return;
+        }
+
+        // Show loading
+        document.getElementById("analyseBtn").disabled = true;
+        document.getElementById("loading").classList.add("visible");
+        document.getElementById("results").classList.remove("visible");
+        document.getElementById("errorBox").classList.remove("visible");
+
+        try {
+          const response = await fetch("/analyse", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              log_text: logText || null,
+              code_snippet: codeSnippet || null,
+              bulletin_text: bulletinText || null,
+            }),
+          });
+
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.detail || "Analysis failed");
+          }
+
+          const data = await response.json();
+          displayResults(data);
+        } catch (error) {
+          showError("Analysis failed: " + error.message);
+        } finally {
+          document.getElementById("analyseBtn").disabled = false;
+          document.getElementById("loading").classList.remove("visible");
+        }
+      }
+
+      function displayResults(data) {
+        // Risk banner
+        const risk = data.overall_risk || "UNKNOWN";
+        const banner = document.getElementById("riskBanner");
+        banner.className = "risk-banner risk-" + risk;
+        document.getElementById("overallRisk").textContent = risk;
+        document.getElementById("urgencyLevel").textContent =
+          "Urgency: " + (data.overall_urgency || "N/A");
+        document.getElementById("modelsRun").textContent =
+          "Models run: " + (data.models_used?.length || 0);
+        document.getElementById("timestamp").textContent = new Date(
+          data.timestamp
+        ).toLocaleString();
+
+        // Model 1 results
+        if (data.threat_analysis && !data.threat_analysis.error) {
+          const t = data.threat_analysis;
+          document.getElementById("threatContent").innerHTML = `
+                <div class="field">
+                    <div class="key">Risk Level</div>
+                    <div class="value">${t.risk_level}</div>
+                </div>
+                <div class="field">
+                    <div class="key">Confidence</div>
+                    <div class="value">${(t.confidence * 100).toFixed(1)}%</div>
+                </div>
+                <div class="field">
+                    <div class="key">Flagged</div>
+                    <div class="value">${t.flagged ? "⚠ YES" : "✓ NO"}</div>
+                </div>
+            `;
+        }
+
+        // Model 2 results
+        if (data.code_analysis && !data.code_analysis.error) {
+          const c = data.code_analysis;
+          document.getElementById("codeContent").innerHTML = `
+                <div class="field">
+                    <div class="key">Threat Type</div>
+                    <div class="value">${c.threat_type || "N/A"}</div>
+                </div>
+                <div class="field">
+                    <div class="key">Risk Level</div>
+                    <div class="value">${c.risk_level}</div>
+                </div>
+                <div class="field">
+                    <div class="key">Confidence</div>
+                    <div class="value">${c.confidence || "N/A"}</div>
+                </div>
+            `;
+        }
+
+        // Model 3 results
+        if (data.urgency_analysis && !data.urgency_analysis.error) {
+          const u = data.urgency_analysis;
+          document.getElementById("urgencyContent").innerHTML = `
+                <div class="field">
+                    <div class="key">Urgency</div>
+                    <div class="value">${u.urgency_level}</div>
+                </div>
+                <div class="field">
+                    <div class="key">Response Time</div>
+                    <div class="value">${u.response_time}</div>
+                </div>
+                <div class="field">
+                    <div class="key">Priority</div>
+                    <div class="value">${u.priority}</div>
+                </div>
+            `;
+        }
+
+        // Recommendations
+        const recList = document.getElementById("recommendationsList");
+        recList.innerHTML = "";
+        if (data.recommendations && data.recommendations.length > 0) {
+          data.recommendations.forEach((rec) => {
+            const li = document.createElement("li");
+            li.textContent = rec;
+            recList.appendChild(li);
+          });
+        } else {
+          recList.innerHTML = "<li>No specific actions required</li>";
+        }
+
+        // Summary
+        document.getElementById("summaryBox").textContent = data.summary || "";
+
+        // Show results
+        document.getElementById("results").classList.add("visible");
+        document
+          .getElementById("results")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      function showError(message) {
+        const errorBox = document.getElementById("errorBox");
+        errorBox.textContent = message;
+        errorBox.classList.add("visible");
+      }
+    </script>
+  </body>
+</html>
