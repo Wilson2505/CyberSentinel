@@ -6,7 +6,7 @@ load_dotenv()
 class Config:
     # Ollama settings
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    OLLAMA_CODE_MODEL = os.getenv("OLLAMA_CODE_MODEL", "codellama")
+    OLLAMA_CODE_MODEL = os.getenv("OLLAMA_CODE_MODEL", "mistral")
     OLLAMA_SYNTHESIS_MODEL = os.getenv("OLLAMA_SYNTHESIS_MODEL", "mistral")
     
     # HuggingFace settings
