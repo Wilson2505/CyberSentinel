@@ -37,7 +37,7 @@ class TestCodeAnalyser:
     def test_model_name_recorded(self, analyser):
         """Test that model name is recorded for documentation."""
         result = analyser.analyse("print('hello world')")
-        assert result["model_used"] == "codellama"
+        assert result["model_used"] == "mistral"
 
     def test_analyse_returns_required_fields(self, analyser):
         """Test that analysis output contains all required fields."""

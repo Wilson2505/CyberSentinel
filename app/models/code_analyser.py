@@ -79,7 +79,7 @@ class CodeAnalyser:
 
         try:
             logger.info(f"Analysing code snippet with {self.model_name}")
-            time.sleep(2)
+            
 
             prompt = self._build_prompt(code)
 
@@ -134,6 +134,15 @@ class CodeAnalyser:
         Parses the structured response from CodeLlama
         into a clean dictionary.
         """
+        # Strip any safety preamble before parsing
+        markers = [
+            "THREAT_TYPE:",
+            "threat_type:",
+        ]
+        for marker in markers:
+            if marker in response:
+                response = response[response.index(marker):]
+                break
         result = {
             "threat_type": "UNKNOWN",
             "risk_level": "UNKNOWN",
