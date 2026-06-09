@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberSentinel — Analysis History</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Courier New", monospace;
+        background: #0a0e1a;
+        color: #e0e0e0;
+        min-height: 100vh;
+      }
+      header {
+        background: #0d1117;
+        border-bottom: 1px solid #1e3a5f;
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      header h1 {
+        color: #00d4ff;
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+      }
+      .nav-link {
+        color: #00d4ff;
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border: 1px solid #1e3a5f;
+        border-radius: 4px;
+      }
+      .nav-link:hover {
+        background: #1e3a5f;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .stat-card {
+        background: #0d1117;
+        border: 1px solid #1e3a5f;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+      }
+      .stat-card .number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #00d4ff;
+      }
+      .stat-card .label {
+        color: #666;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+      }
+      .history-table {
+        background: #0d1117;
+        border: 1px solid #1e3a5f;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .history-table h2 {
+        color: #00d4ff;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        padding: 16px 24px;
+        border-bottom: 1px solid #1e3a5f;
+        text-transform: uppercase;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        background: #161b22;
+        color: #666;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 12px 16px;
+        text-align: left;
+      }
+      td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #161b22;
+        font-size: 0.85rem;
+      }
+      tr:hover {
+        background: #161b22;
+        cursor: pointer;
+      }
+      .risk-badge {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 0.75rem;
+        font-weight: bold;
+      }
+      .risk-CRITICAL {
+        background: #3d0000;
+        color: #ff4444;
+        border: 1px solid #ff0000;
+      }
+      .risk-HIGH {
+        background: #2d1a00;
+        color: #ff8844;
+        border: 1px solid #ff6600;
+      }
+      .risk-MEDIUM {
+        background: #2d2a00;
+        color: #ffcc44;
+        border: 1px solid #ffcc00;
+      }
+      .risk-LOW {
+        background: #0a2d00;
+        color: #44cc88;
+        border: 1px solid #00cc44;
+      }
+      .risk-SAFE {
+        background: #002d1a;
+        color: #00ff88;
+        border: 1px solid #00ff88;
+      }
+      .risk-UNKNOWN {
+        background: #1a1a2e;
+        color: #888;
+        border: 1px solid #444;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: #444;
+      }
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #00d4ff;
+      }
+      .delete-btn {
+        background: none;
+        border: 1px solid #3d0000;
+        color: #ff4444;
+        padding: 3px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-family: "Courier New", monospace;
+      }
+      .delete-btn:hover {
+        background: #3d0000;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal.visible {
+        display: flex;
+      }
+      .modal-content {
+        background: #0d1117;
+        border: 1px solid #1e3a5f;
+        border-radius: 8px;
+        padding: 32px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .modal-header h2 {
+        color: #00d4ff;
+        font-size: 0.9rem;
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+      .detail-field {
+        margin-bottom: 12px;
+      }
+      .detail-field .key {
+        color: #666;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .detail-field .value {
+        color: #e0e0e0;
+        font-size: 0.85rem;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>⚡ CYBERSENTINEL</h1>
+      <a href="/" class="nav-link">New Analysis</a>
+      <a href="/history" class="nav-link">History</a>
+    </header>
+
+    <div class="container">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="number" id="totalCount">-</div>
+          <div class="label">Total Analyses</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" style="color: #ff4444" id="criticalCount">-</div>
+          <div class="label">Critical</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" style="color: #ff8844" id="highCount">-</div>
+          <div class="label">High</div>
+        </div>
+        <div class="stat-card">
+          <div class="number" style="color: #44cc88" id="safeCount">-</div>
+          <div class="label">Safe / Low</div>
+        </div>
+      </div>
+
+      <div class="history-table">
+        <h2>Analysis History</h2>
+        <div id="tableContainer">
+          <div class="loading">Loading history...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="detailModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Analysis Detail</h2>
+          <button class="close-btn" onclick="closeModal()">x</button>
+        </div>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <script>
+      async function loadStats() {
+        const response = await fetch("/api/statistics");
+        const data = await response.json();
+        const byRisk = data.by_risk_level || {};
+        document.getElementById("totalCount").textContent =
+          data.total_analyses || 0;
+        document.getElementById("criticalCount").textContent =
+          byRisk["CRITICAL"] || 0;
+        document.getElementById("highCount").textContent = byRisk["HIGH"] || 0;
+        const safeLow = (byRisk["SAFE"] || 0) + (byRisk["LOW"] || 0);
+        document.getElementById("safeCount").textContent = safeLow;
+      }
+
+      async function loadHistory() {
+        const response = await fetch("/api/history?limit=50");
+        const data = await response.json();
+        const container = document.getElementById("tableContainer");
+
+        if (!data.analyses || data.analyses.length === 0) {
+          container.innerHTML =
+            '<div class="empty-state">No analyses recorded yet. Run your first analysis on the dashboard.</div>';
+          return;
+        }
+
+        let html = "<table><thead><tr>";
+        html +=
+          "<th>ID</th><th>Timestamp</th><th>Overall Risk</th><th>Urgency</th><th>Summary</th><th>Action</th>";
+        html += "</tr></thead><tbody>";
+
+        data.analyses.forEach((a) => {
+          const risk = a.overall_risk || "UNKNOWN";
+          const time = new Date(a.timestamp).toLocaleString();
+          const summary = a.summary
+            ? a.summary.substring(0, 60) + "..."
+            : "N/A";
+          html += `<tr onclick="viewDetail(${a.id})">`;
+          html += `<td>#${a.id}</td>`;
+          html += `<td>${time}</td>`;
+          html += `<td><span class="risk-badge risk-${risk}">${risk}</span></td>`;
+          html += `<td>${a.overall_urgency || "N/A"}</td>`;
+          html += `<td style="color:#666">${summary}</td>`;
+          html += `<td><button class="delete-btn" onclick="deleteRecord(event, ${a.id})">Delete</button></td>`;
+          html += "</tr>";
+        });
+
+        html += "</tbody></table>";
+        container.innerHTML = html;
+      }
+
+      async function viewDetail(id) {
+        const response = await fetch(`/api/history/${id}`);
+        const data = await response.json();
+
+        const risk = data.overall_risk || "UNKNOWN";
+        const time = new Date(data.timestamp).toLocaleString();
+
+        let html = `
+            <div class="detail-field">
+                <div class="key">Overall Risk</div>
+                <div class="value"><span class="risk-badge risk-${risk}">${risk}</span></div>
+            </div>
+            <div class="detail-field">
+                <div class="key">Timestamp</div>
+                <div class="value">${time}</div>
+            </div>
+            <div class="detail-field">
+                <div class="key">Overall Urgency</div>
+                <div class="value">${data.overall_urgency || "N/A"}</div>
+            </div>
+            <div class="detail-field">
+                <div class="key">Models Used</div>
+                <div class="value">${(data.models_used || []).join(", ")}</div>
+            </div>
+        `;
+
+        if (data.threat_analysis && !data.threat_analysis.error) {
+          const t = data.threat_analysis;
+          html += `
+                <div class="detail-field">
+                    <div class="key">Model 1 — Threat Analysis</div>
+                    <div class="value">Risk: ${t.risk_level} | Confidence: ${(
+            t.confidence * 100
+          ).toFixed(1)}%</div>
+                </div>
+            `;
+        }
+
+        if (data.code_analysis && !data.code_analysis.error) {
+          const c = data.code_analysis;
+          html += `
+                <div class="detail-field">
+                    <div class="key">Model 2 — Code Analysis</div>
+                    <div class="value">Type: ${c.threat_type} | Risk: ${
+            c.risk_level
+          }</div>
+                </div>
+                <div class="detail-field">
+                    <div class="key">Explanation</div>
+                    <div class="value">${c.explanation || "N/A"}</div>
+                </div>
+            `;
+        }
+
+        if (data.urgency_analysis && !data.urgency_analysis.error) {
+          const u = data.urgency_analysis;
+          html += `
+                <div class="detail-field">
+                    <div class="key">Model 3 — Urgency</div>
+                    <div class="value">${u.urgency_level} | ${u.response_time}</div>
+                </div>
+            `;
+        }
+
+        if (data.recommendations && data.recommendations.length > 0) {
+          html += `<div class="detail-field"><div class="key">Recommendations</div>`;
+          data.recommendations.forEach((r) => {
+            html += `<div class="value" style="margin-top:4px">→ ${r}</div>`;
+          });
+          html += `</div>`;
+        }
+
+        document.getElementById("modalBody").innerHTML = html;
+        document.getElementById("detailModal").classList.add("visible");
+      }
+
+      async function deleteRecord(event, id) {
+        event.stopPropagation();
+        if (!confirm(`Delete analysis #${id}?`)) return;
+        await fetch(`/api/history/${id}`, { method: "DELETE" });
+        loadHistory();
+        loadStats();
+      }
+
+      function closeModal() {
+        document.getElementById("detailModal").classList.remove("visible");
+      }
+
+      loadStats();
+      loadHistory();
+    </script>
+  </body>
+</html>
