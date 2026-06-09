@@ -12,7 +12,7 @@ class CodeAnalyser:
     Model 2: Analyses suspicious code snippets and scripts
     for malicious patterns, vulnerabilities and attack techniques.
 
-    Uses CodeLlama running locally via Ollama — keeping sensitive
+    Uses Mistral running locally via Ollama — keeping sensitive
     code samples off external APIs, which is critical in a
     cybersecurity context.
     """
@@ -61,7 +61,7 @@ class CodeAnalyser:
             code: Source code string to analyse
 
         Returns:
-            dict containing threat assessment from CodeLlama
+            dict containing threat assessment from Mistral
         """
         if not code or not code.strip():
             return {
@@ -79,7 +79,7 @@ class CodeAnalyser:
 
         try:
             logger.info(f"Analysing code snippet with {self.model_name}")
-            
+            time.sleep(2)
 
             prompt = self._build_prompt(code)
 
@@ -131,18 +131,27 @@ class CodeAnalyser:
 
     def _parse_response(self, response: str) -> dict:
         """
-        Parses the structured response from CodeLlama
-        into a clean dictionary.
+        Parses the structured response from Mistral
+        into a clean dictionary. Strips any safety preamble
+        before parsing structured fields.
         """
-        # Strip any safety preamble before parsing
-        markers = [
+        # Find earliest field marker and strip everything before it
+        field_markers = [
             "THREAT_TYPE:",
+            "RISK_LEVEL:",
             "threat_type:",
+            "risk_level:",
         ]
-        for marker in markers:
-            if marker in response:
-                response = response[response.index(marker):]
-                break
+
+        earliest_pos = len(response)
+        for marker in field_markers:
+            pos = response.find(marker)
+            if pos != -1 and pos < earliest_pos:
+                earliest_pos = pos
+
+        if earliest_pos < len(response):
+            response = response[earliest_pos:]
+
         result = {
             "threat_type": "UNKNOWN",
             "risk_level": "UNKNOWN",
@@ -191,7 +200,7 @@ class CodeAnalyser:
 
     def evaluate_model(self, test_cases: list) -> dict:
         """
-        Evaluates CodeLlama performance on test cases.
+        Evaluates model performance on test cases.
         Used for model selection documentation in the report.
         """
         results = []
