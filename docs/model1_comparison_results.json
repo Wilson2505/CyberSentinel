@@ -1,0 +1,223 @@
+{
+  "evaluation_date": "2026-06-09T17:55:37.580478",
+  "distilbert": {
+    "model": "distilbert-base-uncased-finetuned-sst-2-english",
+    "detection_rate": 1.0,
+    "specificity": 0.625,
+    "overall_accuracy": 0.8125,
+    "suspicious_flagged": 8,
+    "benign_correct": 5,
+    "results": {
+      "suspicious": [
+        {
+          "category": "Brute Force",
+          "label": "NEGATIVE",
+          "confidence": 0.9998,
+          "flagged": true
+        },
+        {
+          "category": "Unauthorized Access",
+          "label": "NEGATIVE",
+          "confidence": 0.9963,
+          "flagged": true
+        },
+        {
+          "category": "SQL Injection",
+          "label": "NEGATIVE",
+          "confidence": 0.9952,
+          "flagged": true
+        },
+        {
+          "category": "Malware",
+          "label": "NEGATIVE",
+          "confidence": 0.9981,
+          "flagged": true
+        },
+        {
+          "category": "Port Scan",
+          "label": "NEGATIVE",
+          "confidence": 0.9849,
+          "flagged": true
+        },
+        {
+          "category": "Ransomware",
+          "label": "NEGATIVE",
+          "confidence": 0.9948,
+          "flagged": true
+        },
+        {
+          "category": "Phishing",
+          "label": "NEGATIVE",
+          "confidence": 0.9987,
+          "flagged": true
+        },
+        {
+          "category": "Data Exfiltration",
+          "label": "NEGATIVE",
+          "confidence": 0.9933,
+          "flagged": true
+        }
+      ],
+      "benign": [
+        {
+          "category": "Normal Login",
+          "label": "POSITIVE",
+          "confidence": 0.977,
+          "flagged": false
+        },
+        {
+          "category": "Scheduled Task",
+          "label": "POSITIVE",
+          "confidence": 0.9919,
+          "flagged": false
+        },
+        {
+          "category": "Maintenance",
+          "label": "POSITIVE",
+          "confidence": 0.9817,
+          "flagged": false
+        },
+        {
+          "category": "Backup",
+          "label": "NEGATIVE",
+          "confidence": 0.9845,
+          "flagged": true
+        },
+        {
+          "category": "Health Check",
+          "label": "NEGATIVE",
+          "confidence": 0.9957,
+          "flagged": true
+        },
+        {
+          "category": "Policy Compliance",
+          "label": "POSITIVE",
+          "confidence": 0.845,
+          "flagged": false
+        },
+        {
+          "category": "Security Scan",
+          "label": "NEGATIVE",
+          "confidence": 0.9926,
+          "flagged": true
+        },
+        {
+          "category": "Admin Action",
+          "label": "POSITIVE",
+          "confidence": 0.9974,
+          "flagged": false
+        }
+      ]
+    }
+  },
+  "secroberta": {
+    "model": "jackaduma/SecRoBERTa",
+    "detection_rate": 0.0,
+    "specificity": 0.75,
+    "overall_accuracy": 0.375,
+    "suspicious_flagged": 0,
+    "benign_correct": 6,
+    "results": {
+      "suspicious": [
+        {
+          "category": "Brute Force",
+          "label": "LABEL_1",
+          "confidence": 0.6427,
+          "flagged": false
+        },
+        {
+          "category": "Unauthorized Access",
+          "label": "LABEL_1",
+          "confidence": 0.55,
+          "flagged": false
+        },
+        {
+          "category": "SQL Injection",
+          "label": "LABEL_1",
+          "confidence": 0.6556,
+          "flagged": false
+        },
+        {
+          "category": "Malware",
+          "label": "LABEL_1",
+          "confidence": 0.6416,
+          "flagged": false
+        },
+        {
+          "category": "Port Scan",
+          "label": "LABEL_1",
+          "confidence": 0.5974,
+          "flagged": false
+        },
+        {
+          "category": "Ransomware",
+          "label": "LABEL_1",
+          "confidence": 0.5639,
+          "flagged": false
+        },
+        {
+          "category": "Phishing",
+          "label": "LABEL_1",
+          "confidence": 0.5249,
+          "flagged": false
+        },
+        {
+          "category": "Data Exfiltration",
+          "label": "LABEL_1",
+          "confidence": 0.6049,
+          "flagged": false
+        }
+      ],
+      "benign": [
+        {
+          "category": "Normal Login",
+          "label": "LABEL_1",
+          "confidence": 0.6792,
+          "flagged": false
+        },
+        {
+          "category": "Scheduled Task",
+          "label": "LABEL_1",
+          "confidence": 0.7026,
+          "flagged": true
+        },
+        {
+          "category": "Maintenance",
+          "label": "LABEL_1",
+          "confidence": 0.7077,
+          "flagged": true
+        },
+        {
+          "category": "Backup",
+          "label": "LABEL_1",
+          "confidence": 0.6102,
+          "flagged": false
+        },
+        {
+          "category": "Health Check",
+          "label": "LABEL_1",
+          "confidence": 0.6845,
+          "flagged": false
+        },
+        {
+          "category": "Policy Compliance",
+          "label": "LABEL_1",
+          "confidence": 0.6103,
+          "flagged": false
+        },
+        {
+          "category": "Security Scan",
+          "label": "LABEL_1",
+          "confidence": 0.5048,
+          "flagged": false
+        },
+        {
+          "category": "Admin Action",
+          "label": "LABEL_1",
+          "confidence": 0.6295,
+          "flagged": false
+        }
+      ]
+    }
+  }
+}
