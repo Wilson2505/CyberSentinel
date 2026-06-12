@@ -165,3 +165,102 @@ async def delete_record(analysis_id: int):
     if not deleted:
         raise HTTPException(status_code=404, detail="Analysis not found")
     return {"deleted": True, "id": analysis_id}
+
+class FeedbackRequest(BaseModel):
+    analysis_id: int
+    sus_scores: list
+    scenario_ratings: dict
+    comments: str = ""
+    participant_background: str = ""
+
+
+@app.post("/api/feedback")
+async def submit_feedback(request: FeedbackRequest):
+    """
+    Stores user testing feedback linked to an analysis ID.
+    Used for formal user evaluation documentation.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Create feedback table if it doesn't exist
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            analysis_id INTEGER,
+            sus_scores TEXT,
+            sus_total REAL,
+            scenario_ratings TEXT,
+            comments TEXT,
+            participant_background TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # Calculate SUS score
+    scores = request.sus_scores
+    if len(scores) == 10:
+        converted = []
+        for i, score in enumerate(scores):
+            if (i + 1) % 2 == 1:
+                converted.append(score - 1)
+            else:
+                converted.append(5 - score)
+        sus_total = sum(converted) * 2.5
+    else:
+        sus_total = 0
+
+    import json as json_module
+    cursor.execute("""
+        INSERT INTO feedback (
+            analysis_id, sus_scores, sus_total,
+            scenario_ratings, comments, participant_background
+        ) VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        request.analysis_id,
+        json_module.dumps(request.sus_scores),
+        sus_total,
+        json_module.dumps(request.scenario_ratings),
+        request.comments,
+        request.participant_background
+    ))
+
+    conn.commit()
+    record_id = cursor.lastrowid
+    conn.close()
+
+    return {
+        "id": record_id,
+        "sus_score": sus_total,
+        "interpretation": "Above average" if sus_total >= 68 else "Below average"
+    }
+
+
+@app.get("/api/feedback/summary")
+async def get_feedback_summary():
+    """Returns aggregated user testing results."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT
+                COUNT(*) as total_participants,
+                AVG(sus_total) as avg_sus,
+                MIN(sus_total) as min_sus,
+                MAX(sus_total) as max_sus
+            FROM feedback
+        """)
+        row = cursor.fetchone()
+        conn.close()
+
+        return {
+            "total_participants": row[0],
+            "average_sus_score": round(row[1], 1) if row[1] else 0,
+            "min_sus_score": row[2],
+            "max_sus_score": row[3],
+            "above_average_threshold": 68
+        }
+    except Exception as e:
+        conn.close()
+        return {"error": str(e)}
