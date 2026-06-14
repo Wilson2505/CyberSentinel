@@ -12,7 +12,8 @@ from app.database import (
     get_all_analyses,
     get_analysis_by_id,
     get_risk_statistics,
-    delete_analysis
+    delete_analysis,
+    get_connection
 )
 import logging
 
